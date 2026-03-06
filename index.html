@@ -1,597 +1,270 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贵船神社 水占卜 - 水みくじ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>貴船神社 水占みくじ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Noto Serif SC', 'Noto Serif JP', serif;
-            background: linear-gradient(180deg, #a8d5e2 0%, #7fb3c9 50%, #5a8a9e 100%);
+            font-family: 'Noto Serif JP', serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #5F9EA0 50%, #4682B4 100%);
             min-height: 100vh;
             color: #1a3a4a;
             overflow-x: hidden;
-            position: relative;
         }
-
-        /* 水面效果 */
-        .water-surface {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60%;
-            background: linear-gradient(180deg, rgba(127, 179, 201, 0.3) 0%, rgba(90, 138, 158, 0.6) 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* 涟漪容器 */
-        .ripple-container {
-            position: fixed;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            height: 400px;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .ripple {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0;
-            height: 0;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            opacity: 0;
-        }
-
-        .ripple.animate {
-            animation: rippleEffect 2s ease-out infinite;
-        }
-
-        @keyframes rippleEffect {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 1;
-            }
-            100% {
-                width: 300px;
-                height: 300px;
-                opacity: 0;
-            }
-        }
-
-        /* 主容器 */
         .container {
-            position: relative;
-            z-index: 3;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
-
-        /* 标题 */
-        header {
-            text-align: center;
-            padding: 30px 0;
-            margin-bottom: 20px;
-        }
-
-        .temple-name {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #1a3a4a;
-            margin-bottom: 10px;
-            letter-spacing: 0.2em;
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: #2c5a6e;
-            letter-spacing: 0.15em;
-        }
-
+        header { text-align: center; padding: 30px 0 20px; }
+        .temple-name { font-size: 2rem; font-weight: 700; color: #1a3a4a; margin-bottom: 10px; }
+        .subtitle { font-size: 1rem; color: #2c5a6e; }
+        
         /* 水签纸 */
-        .mizu-mikuji-container {
-            position: relative;
+        .mikuji-paper {
             width: 100%;
-            max-width: 500px;
-            margin: 30px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .mizu-paper {
-            width: 350px;
-            height: 200px;
+            max-width: 700px;
             background: linear-gradient(135deg, #fffef9 0%, #f5f0e8 100%);
-            border: 2px solid #c9d4d9;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 3px double #5a7a8a;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
-            transition: all 0.5s ease;
             overflow: hidden;
         }
-
-        .mizu-paper.floating {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-10px) rotate(1deg);
-            }
-        }
-
-        .mizu-paper.blank::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(245,240,232,0.9) 100%);
-            z-index: 10;
-            transition: opacity 1s ease;
-        }
-
-        .mizu-paper.revealed::after {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .paper-content {
+        .mikuji-header {
             text-align: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 2s ease;
+            border-bottom: 2px solid #5a7a8a;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
-
-        .mizu-paper.revealed .paper-content {
-            opacity: 1;
-        }
-
-        .fortune-type {
-            font-size: 2rem;
+        .mikuji-title { font-size: 2.5rem; font-weight: 700; color: #1a3a4a; }
+        .fortune-badge {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #1a3a4a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #c41e3a;
-            margin-bottom: 15px;
+            margin: 10px auto;
         }
-
-        .fortune-type.大吉 { color: #c41e3a; }
-        .fortune-type.吉 { color: #228b22; }
-        .fortune-type.中吉 { color: #4169e1; }
-        .fortune-type.小吉 { color: #9370db; }
-        .fortune-type.末吉 { color: #da70d6; }
-        .fortune-type.凶 { color: #696969; }
-
-        .poem {
-            font-size: 0.95rem;
-            line-height: 1.8;
-            color: #1a3a4a;
-            margin: 15px 0;
-            font-style: italic;
+        .fortune-badge.大吉 { color: #c41e3a; border-color: #c41e3a; }
+        .fortune-badge.吉 { color: #228b22; border-color: #228b22; }
+        .fortune-badge.中吉 { color: #4169e1; border-color: #4169e1; }
+        .fortune-badge.小吉 { color: #9370db; border-color: #9370db; }
+        .fortune-badge.末吉 { color: #da70d6; border-color: #da70d6; }
+        .fortune-badge.凶 { color: #696969; border-color: #696969; }
+        
+        .fortune-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
         }
-
-        .stick-number {
-            font-size: 0.85rem;
-            color: #5a7a8a;
-            margin-bottom: 10px;
+        .fortune-item {
+            border: 1px solid #5a7a8a;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
         }
-
-        /* 按钮 */
+        .fortune-label { font-size: 0.85rem; color: #5a7a8a; margin-bottom: 5px; font-weight: 600; }
+        .fortune-value { font-size: 0.9rem; color: #1a3a4a; line-height: 1.4; }
+        .poem-section {
+            background: rgba(90, 122, 138, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .poem-text { font-size: 1.1rem; line-height: 1.8; color: #1a3a4a; font-style: italic; }
+        
         .btn {
             padding: 15px 50px;
             font-size: 1.1rem;
-            font-family: inherit;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             font-weight: 600;
-            letter-spacing: 0.15em;
             margin: 10px;
         }
-
         .btn-primary {
-            background: linear-gradient(135deg, #5a8a9e 0%, #3a6a7e 100%);
+            background: linear-gradient(135deg, #5a8a9e, #3a6a7e);
             color: #fff;
-            box-shadow: 0 4px 15px rgba(90, 138, 158, 0.4);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(90, 138, 158, 0.6);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .btn-secondary {
             background: transparent;
             color: #2c5a6e;
             border: 2px solid #5a8a9e;
         }
-
-        .btn-secondary:hover {
-            border-color: #3a6a7e;
-            color: #3a6a7e;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        /* 运势详情 */
-        .fortune-details {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            display: none;
-        }
-
-        .fortune-details.show {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            background: rgba(90, 138, 158, 0.1);
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #5a8a9e;
-            margin-bottom: 5px;
-        }
-
-        .detail-value {
-            font-size: 0.95rem;
-            color: #1a3a4a;
-        }
-
-        /* 提示 */
-        .hint {
-            text-align: center;
-            color: #2c5a6e;
-            font-size: 1rem;
-            margin: 20px 0;
-            line-height: 1.8;
-        }
-
-        /* 水滴装饰 */
-        .water-drop {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 2;
-            animation: drop 2s linear infinite;
-        }
-
-        @keyframes drop {
-            0% {
-                transform: translateY(-10vh);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh);
-                opacity: 0;
-            }
-        }
-
-        /* 响应式 */
-        @media (max-width: 600px) {
-            .temple-name { font-size: 1.6rem; }
-            .mizu-paper { width: 280px; height: 160px; }
-            .fortune-type { font-size: 1.6rem; }
-            .detail-grid { grid-template-columns: 1fr; }
+        .controls { display: flex; gap: 15px; margin: 20px 0; }
+        .hint { text-align: center; color: #2c5a6e; margin: 20px 0; }
+        
+        @media (max-width: 768px) {
+            .fortune-grid { grid-template-columns: repeat(2, 1fr); }
+            .mikuji-title { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
-    <!-- 水面效果 -->
-    <div class="water-surface"></div>
-    
-    <!-- 涟漪容器 -->
-    <div class="ripple-container" id="rippleContainer"></div>
-
-    <!-- 水滴 -->
-    <div id="waterDrops"></div>
-
     <div class="container">
         <header>
-            <h1 class="temple-name">贵船神社</h1>
-            <p class="subtitle">水占卜 · 水みくじ</p>
-            <p class="hint" style="font-size: 0.85rem; margin-top: 10px;">将空白签纸放入水中，文字将会浮现</p>
+            <h1 class="temple-name">貴布禰総本宮 貴船神社</h1>
+            <p class="subtitle">水占みくじ</p>
         </header>
 
-        <!-- 水签纸 -->
-        <div class="mizu-mikuji-container">
-            <div class="mizu-paper blank" id="mizuPaper">
-                <div class="paper-content" id="paperContent">
-                    <div class="stick-number" id="stickNumber"></div>
-                    <div class="fortune-type" id="fortuneType"></div>
-                    <div class="poem" id="poemText"></div>
+        <div class="mikuji-paper" id="mikujiPaper">
+            <div class="mikuji-header">
+                <div class="mikuji-title">水占みくじ</div>
+                <div id="fortuneBadge" class="fortune-badge">大吉</div>
+                <div id="stickNumber" style="font-size: 0.9rem; color: #5a7a8a;">第 7 番</div>
+            </div>
+
+            <div id="fortuneContent" style="opacity: 0; transition: opacity 2s ease;">
+                <div class="poem-section">
+                    <div class="poem-text" id="poemText"></div>
                 </div>
+
+                <div class="fortune-grid" id="fortuneGrid"></div>
             </div>
         </div>
 
-        <!-- 提示 -->
-        <p class="hint" id="mainHint">
-            静心凝神，默念所求之事<br>
-            点击"占卜"将签纸放入水中
+        <p class="hint" id="hint">
+            心を静かにして、お祈りしたいことをお思いください<br>
+            「占い」ボタンを押して、神籤を水に浮かべてください
         </p>
 
-        <!-- 控制按钮 -->
         <div class="controls">
-            <button class="btn btn-primary" id="divineBtn" onclick="startDivination()">占卜</button>
-            <button class="btn btn-secondary" onclick="reset()">重置</button>
+            <button class="btn btn-primary" id="divineBtn" onclick="divine()">占い</button>
+            <button class="btn btn-secondary" onclick="reset()">リセット</button>
         </div>
-
-        <!-- 运势详情 -->
-        <div class="fortune-details" id="fortuneDetails"></div>
     </div>
 
     <script>
-        // 贵船神社水占卜数据（30 签）
         const mikujiData = [
-            { num: 1, type: '大吉', poem: '云散月明朗，风静波浪平\n前路无障碍，万事皆亨通', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '兴隆', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 1, type: '大吉', poem: '万事望のまゝなり\n思はず早くとのう\n安心せよ', details: {
+                '願望': '会实现', '恋愛': '安心吧', '出産': '容易', '病気': '专心治疗', '方向': '南方好',
+                '旅行': '好', '学問': '安心学习', '商売': '无损失', '失物': '出现', '転居': '急的话好'
             }},
-            { num: 2, type: '大吉', poem: '春风吹万物，大地回春时\n努力终有报，喜悦满心怀', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '能找到', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 2, type: '大吉', poem: '雲散じ月明らかなり\n風静かにして浪平らかなり\n前路に障りなし', details: {
+                '願望': '会实现', '恋愛': '好', '出産': '平安', '病気': '痊愈', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '兴隆', '失物': '出现', '転居': '好'
             }},
-            { num: 3, type: '吉', poem: '花开逢雨露，叶茂得阳光\n努力加勤奋，成功在眼前', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 3, type: '吉', poem: '春風万物を吹いて\n大地春に帰る時\n努力すれば必ず報いあり', details: {
+                '願望': '会实现', '恋愛': '好', '出産': '平安', '病気': '良好', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '好', '失物': '出现', '転居': '好'
             }},
-            { num: 4, type: '吉', poem: '山重水复路，柳暗花明村\n坚持不放弃，终见好前程', details: {
-                '愿望': '会实现', '待人': '晚来', '失物': '会出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 4, type: '吉', poem: '山重なり水復たるも\n柳暗く花明らかなる村あり\n堅持すれば必ず好転す', details: {
+                '願望': '会实现', '恋愛': '晚来', '出産': '平安', '病気': '良好', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '好', '失物': '出现', '転居': '好'
             }},
-            { num: 5, type: '吉', poem: '风吹云散去，月出照山河\n前路渐明朗，喜事将来临', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 5, type: '吉', poem: '風吹いて雲散じ\n月出て山河を照らす\n前路漸く明らかなり', details: {
+                '願望': '会实现', '恋愛': '会来', '出産': '平安', '病気': '良好', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '好', '失物': '出现', '転居': '好'
             }},
-            { num: 6, type: '中吉', poem: '云遮月不明，风吹花未开\n耐心等待时，终有好结果', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 6, type: '中吉', poem: '雲月を遮りて明らかならず\n風花を吹きて開かず\n時を待てば必ず好結果あり', details: {
+                '願望': '会实现', '恋愛': '会来', '出産': '平安', '病気': '良好', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '普通', '失物': '出现', '転居': '好'
             }},
-            { num: 7, type: '中吉', poem: '山高路遥远，水深舟可行\n努力向前进，终会达目的', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '难出现', '旅行': '好', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 7, type: '大吉', poem: '万事望のまゝなり\n思はず早くとのう\n安心せよ', details: {
+                '願望': '会实现', '恋愛': '安心せよ', '出産': 'やすし', '病気': '治療に専念せよ', '方向': '南の方 よろし',
+                '旅行': '行先利徳あり', '学問': '安心して勉強せよ', '商売': '売物買物損はなし', '失物': '出づる 人手に渡らず', '転居': '急がぬが 吉'
             }},
-            { num: 8, type: '中吉', poem: '风吹云自散，雨过天自晴\n困难终过去，好运将来临', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
+            { num: 8, type: '中吉', poem: '山高く路遠し\n水深く舟行るべし\n努力して前進せば必ず目的を達す', details: {
+                '願望': '会实现', '恋愛': '会来', '出産': '平安', '病気': '良好', '方向': '好',
+                '旅行': '好', '学問': '合格', '商売': '普通', '失物': '难出现', '転居': '好'
             }},
-            { num: 9, type: '小吉', poem: '小雨润大地，微风拂面来\n平平淡淡过，安稳即是福', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '普通', '搬家': '普通', '生产': '平安'
+            { num: 9, type: '小吉', poem: '小雨大地を潤し\n微風面を撫ず\n平々凡々として安し', details: {
+                '願望': '会实现', '恋愛': '会来', '出産': '平安', '病気': '良好', '方向': '普通',
+                '旅行': '普通', '学問': '合格', '商売': '普通', '失物': '出现', '転居': '普通'
             }},
-            { num: 10, type: '小吉', poem: '日出东方红，月落西山暗\n顺其自然过，平安即是福', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '普通', '搬家': '普通', '生产': '平安'
+            { num: 10, type: '小吉', poem: '日出でて東方紅く\n月落ちて西山暗し\n自然に従いて安し', details: {
+                '願望': '会实现', '恋愛': '会来', '出産': '平安', '病気': '良好', '方向': '普通',
+                '旅行': '普通', '学問': '合格', '商売': '普通', '失物': '出现', '転居': '普通'
             }},
-            { num: 11, type: '小吉', poem: '花开花落时，云卷云舒间\n平常心对待，自有好结果', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '普通', '搬家': '普通', '生产': '平安'
+            { num: 11, type: '末吉', poem: '冬去りて春来たらんとし\n寒尽きて暖自ら開く\n時を待てば必ず好運来る', details: {
+                '願望': '会实现', '恋愛': '等待', '出産': '注意', '病気': '注意', '方向': '普通',
+                '旅行': '普通', '学問': '努力', '商売': '谨慎', '失物': '晚出现', '転居': '等待'
             }},
-            { num: 12, type: '末吉', poem: '冬去春将来，寒尽暖自开\n耐心等待时，好运终来临', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '晚出现', '旅行': '普通', '生意': '普通', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
+            { num: 12, type: '末吉', poem: '烏雲日月を遮り\n風雨前程を阻む\n堅持して天晴るを待て', details: {
+                '願望': '会实现', '恋愛': '等待', '出産': '注意', '病気': '注意', '方向': '注意',
+                '旅行': '注意', '学問': '努力', '商売': '谨慎', '失物': '难出现', '転居': '等待'
             }},
-            { num: 13, type: '末吉', poem: '乌云遮日月，风雨阻前程\n坚持不放弃，终见天晴时', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '难出现', '旅行': '注意', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
+            { num: 13, type: '凶', poem: '烏雲日月を遮り\n風雨前程を阻む\n慎みて時を待て', details: {
+                '願望': '难实现', '恋愛': '不好', '出産': '注意', '病気': '不好', '方向': '不好',
+                '旅行': '不好', '学問': '不好', '商売': '不好', '失物': '难出现', '転居': '不好'
             }},
-            { num: 14, type: '末吉', poem: '路遥知马力，日久见人心\n真诚待人事，终会有好报', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '平安'
-            }},
-            { num: 15, type: '末吉', poem: '水到渠自成，瓜熟蒂自落\n时机到来时，自然有收获', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '平安'
-            }},
-            { num: 16, type: '凶', poem: '乌云遮日月，风雨阻前程\n谨慎行事过，等待好运来', details: {
-                '愿望': '难实现', '待人': '不会来', '失物': '难出现', '旅行': '不好', '生意': '不好', '健康': '不好', '考试': '不好', '缘谈': '不好', '搬家': '不好', '生产': '注意'
-            }},
-            { num: 17, type: '凶', poem: '山高路险阻，水深波浪多\n谨慎小心过，等待时机来', details: {
-                '愿望': '难实现', '待人': '不会来', '失物': '难出现', '旅行': '不好', '生意': '不好', '健康': '不好', '考试': '不好', '缘谈': '不好', '搬家': '不好', '生产': '注意'
-            }},
-            { num: 18, type: '大吉', poem: '明月照江水，清风拂面来\n前路多光明，福运自然开', details: {
-                '愿望': '会实现', '待人': '会出现', '失物': '晚出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 19, type: '大吉', poem: '久旱逢甘霖，枯木又逢春\n困厄终过去，喜运降临门', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '难出现', '旅行': '好', '生意': '好', '健康': '痊愈', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 20, type: '吉', poem: '舟行顺风水，马到成功时\n努力终有报，喜悦满门庭', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 21, type: '吉', poem: '日暖花开早，风和鸟鸣欢\n时机已到来，努力莫迟延', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '好', '生意': '好', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 22, type: '中吉', poem: '月缺终会圆，花落会再开\n耐心等待时，喜事自然来', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 23, type: '中吉', poem: '舟行逆水中，努力向前行\n终会达彼岸，成功在眼前', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '好', '搬家': '好', '生产': '平安'
-            }},
-            { num: 24, type: '小吉', poem: '春去夏又来，秋收冬藏时\n四季轮回转，平安即是福', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '普通', '搬家': '普通', '生产': '平安'
-            }},
-            { num: 25, type: '小吉', poem: '山高水长流，路远马行迟\n努力不懈怠，终会有收获', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '普通', '健康': '良好', '考试': '合格', '缘谈': '普通', '搬家': '普通', '生产': '平安'
-            }},
-            { num: 26, type: '末吉', poem: '山重水复路，峰回路转时\n坚持向前行，终会达目的', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '晚出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
-            }},
-            { num: 27, type: '末吉', poem: '小雨润无声，微风拂面轻\n平平淡淡过，安稳度时光', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
-            }},
-            { num: 28, type: '末小吉', poem: '日出东方明，月落西山暗\n顺其自然过，平安度时光', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
-            }},
-            { num: 29, type: '末小吉', poem: '花开花落时，云卷云舒间\n平常心对待，安稳度时光', details: {
-                '愿望': '会实现', '待人': '会来', '失物': '会出现', '旅行': '普通', '生意': '谨慎', '健康': '注意', '考试': '努力', '缘谈': '等待', '搬家': '等待', '生产': '注意'
-            }},
-            { num: 30, type: '凶', poem: '水流花谢去，云散月无光\n谨慎待时运，静候佳音来', details: {
-                '愿望': '难实现', '待人': '不会来', '失物': '难出现', '旅行': '不好', '生意': '不好', '健康': '不好', '考试': '不好', '缘谈': '不好', '搬家': '不好', '生产': '注意'
+            { num: 14, type: '凶', poem: '山高く路険しく\n水深く波多し\n慎みて時を待て', details: {
+                '願望': '难实现', '恋愛': '不好', '出産': '注意', '病気': '不好', '方向': '不好',
+                '旅行': '不好', '学問': '不好', '商売': '不好', '失物': '难出现', '転居': '不好'
             }}
         ];
 
         let isDivining = false;
         let hasDivined = false;
 
-        // 创建水滴
-        function createWaterDrops() {
-            const container = document.getElementById('waterDrops');
-            for (let i = 0; i < 10; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'water-drop';
-                drop.style.left = Math.random() * 100 + 'vw';
-                drop.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                drop.style.animationDelay = Math.random() * 2 + 's';
-                container.appendChild(drop);
-            }
-        }
-
-        // 创建涟漪
-        function createRipple() {
-            const container = document.getElementById('rippleContainer');
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple animate';
-            container.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 2000);
-        }
-
-        // 开始占卜
-        function startDivination() {
+        function divine() {
             if (isDivining || hasDivined) return;
-            
             isDivining = true;
-            const paper = document.getElementById('mizuPaper');
-            const hint = document.getElementById('mainHint');
+            
             const btn = document.getElementById('divineBtn');
+            const hint = document.getElementById('hint');
+            const content = document.getElementById('fortuneContent');
             
             btn.disabled = true;
-            hint.innerHTML = '将签纸放入水中...<br>等待文字浮现';
-            
-            // 开始涟漪动画
-            const rippleInterval = setInterval(createRipple, 500);
+            hint.innerHTML = '神籤を水に浮かべています...<br>文字が浮かび上がるのをお待ちください';
             
             setTimeout(() => {
-                // 随机选择签
-                const randomIndex = Math.floor(Math.random() * mikujiData.length);
-                const selected = mikujiData[randomIndex];
+                const selected = mikujiData[Math.floor(Math.random() * mikujiData.length)];
                 
-                // 设置内容
                 document.getElementById('stickNumber').textContent = `第${selected.num}番`;
-                document.getElementById('fortuneType').textContent = selected.type;
-                document.getElementById('fortuneType').className = 'fortune-type ' + selected.type;
+                document.getElementById('fortuneBadge').textContent = selected.type;
+                document.getElementById('fortuneBadge').className = `fortune-badge ${selected.type}`;
                 document.getElementById('poemText').textContent = selected.poem;
                 
-                // 显示内容
-                paper.classList.remove('blank');
-                paper.classList.add('revealed', 'floating');
+                const gridHtml = Object.entries(selected.details).map(([key, value]) => `
+                    <div class="fortune-item">
+                        <div class="fortune-label">${key}</div>
+                        <div class="fortune-value">${value}</div>
+                    </div>
+                `).join('');
+                document.getElementById('fortuneGrid').innerHTML = gridHtml;
                 
-                hint.innerHTML = '文字已浮现<br>查看下方详细运势';
+                content.style.opacity = 1;
+                hint.innerHTML = '文字が浮かび上がりました';
                 
-                // 显示详情
-                showDetails(selected.details);
-                
-                clearInterval(rippleInterval);
-                isDivining = false;
-                hasDivined = true;
-                
-                btn.textContent = '再占一次';
+                btn.textContent = 'もう一度';
                 btn.disabled = false;
                 btn.onclick = reset;
+                
+                isDivining = false;
+                hasDivined = true;
             }, 2000);
         }
 
-        // 显示详情
-        function showDetails(details) {
-            const container = document.getElementById('fortuneDetails');
-            const html = `
-                <div class="detail-grid">
-                    ${Object.entries(details).map(([key, value]) => `
-                        <div class="detail-item">
-                            <div class="detail-label">${key}</div>
-                            <div class="detail-value">${value}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            container.innerHTML = html;
-            container.classList.add('show');
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // 重置
         function reset() {
             hasDivined = false;
             isDivining = false;
             
-            const paper = document.getElementById('mizuPaper');
-            paper.classList.remove('revealed', 'floating');
-            paper.classList.add('blank');
-            
-            document.getElementById('fortuneDetails').classList.remove('show');
-            document.getElementById('mainHint').innerHTML = '静心凝神，默念所求之事<br>点击"占卜"将签纸放入水中';
+            document.getElementById('fortuneContent').style.opacity = 0;
+            document.getElementById('hint').innerHTML = '心を静かにして、お祈りしたいことをお思いください<br>「占い」ボタンを押して、神籤を水に浮かべてください';
             
             const btn = document.getElementById('divineBtn');
-            btn.textContent = '占卜';
-            btn.onclick = startDivination;
+            btn.textContent = '占い';
+            btn.onclick = divine;
         }
-
-        // 初始化
-        createWaterDrops();
     </script>
 </body>
 </html>
