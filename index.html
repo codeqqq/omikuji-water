@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>貴船神社 水占みくじ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>贵船神社 水占卜</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Noto Serif JP', serif;
+            font-family: 'Noto Serif SC', serif;
             background: linear-gradient(180deg, #87CEEB 0%, #5F9EA0 50%, #4682B4 100%);
             min-height: 100vh;
             overflow-x: hidden;
@@ -39,7 +39,7 @@
         .temple-name { font-size: 2rem; font-weight: 700; color: #1a3a4a; margin-bottom: 10px; }
         .subtitle { font-size: 1rem; color: #2c5a6e; }
         
-        /* 水签纸 - 按照真实照片格式 */
+        /* 水签纸 */
         .mikuji-paper {
             width: 100%;
             max-width: 650px;
@@ -50,10 +50,8 @@
             margin: 30px 0;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
-            opacity: 0;
-            transition: opacity 2s ease;
+            overflow: hidden;
         }
-        .mikuji-paper.visible { opacity: 1; }
         
         .mikuji-header {
             text-align: center;
@@ -104,7 +102,10 @@
         .fortune-value {
             color: #1a3a4a;
             padding-left: 10px;
+            opacity: 0;
+            transition: opacity 2s ease;
         }
+        .fortune-value.revealed { opacity: 1; }
         
         .poem-section {
             background: rgba(139, 115, 85, 0.08);
@@ -119,12 +120,35 @@
             color: #8b7355;
             margin-bottom: 8px;
             font-weight: 600;
+            opacity: 0;
+            transition: opacity 2s ease;
         }
+        .poem-label.revealed { opacity: 1; }
         .poem-text { 
             font-size: 1rem; 
             line-height: 1.8; 
             color: #1a3a4a;
             white-space: pre-line;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        .poem-text.revealed { opacity: 1; }
+        
+        /* 空白覆盖层 */
+        .blank-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #fffef9 0%, #f5f0e8 100%);
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 2s ease;
+            pointer-events: none;
+        }
+        .blank-overlay.fade-out {
+            opacity: 0;
         }
         
         .btn {
@@ -141,10 +165,22 @@
             background: linear-gradient(135deg, #5a8a9e, #3a6a7e);
             color: #fff;
         }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(90, 138, 158, 0.6);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .btn-secondary {
             background: transparent;
             color: #2c5a6e;
             border: 2px solid #5a8a9e;
+        }
+        .btn-secondary:hover {
+            border-color: #3a6a7e;
+            color: #3a6a7e;
         }
         .controls { display: flex; gap: 15px; margin: 20px 0; }
         .hint { text-align: center; color: #2c5a6e; margin: 20px 0; line-height: 1.8; }
@@ -192,65 +228,68 @@
 
     <div class="container">
         <header>
-            <h1 class="temple-name">貴布禰総本宮 貴船神社</h1>
-            <p class="subtitle">水占みくじ</p>
+            <h1 class="temple-name">贵布禰总本宫 贵船神社</h1>
+            <p class="subtitle">水占卜</p>
         </header>
 
         <div class="mikuji-paper" id="mikujiPaper">
+            <!-- 空白覆盖层 -->
+            <div class="blank-overlay" id="blankOverlay"></div>
+            
             <div class="mikuji-header">
-                <div class="mikuji-title">水占みくじ</div>
+                <div class="mikuji-title">水占卜</div>
                 <div class="fortune-num" id="fortuneNum">第 7 番</div>
                 <div class="fortune-type" id="fortuneType">大吉</div>
             </div>
 
             <table class="fortune-table">
-                <tr><td class="fortune-label">願望</td><td class="fortune-value" id="v1">叶う</td></tr>
-                <tr><td class="fortune-label">待人</td><td class="fortune-value" id="v2">来る</td></tr>
-                <tr><td class="fortune-label">失物</td><td class="fortune-value" id="v3">出る</td></tr>
-                <tr><td class="fortune-label">旅行</td><td class="fortune-value" id="v4">良し</td></tr>
-                <tr><td class="fortune-label">商売</td><td class="fortune-value" id="v5">良し</td></tr>
-                <tr><td class="fortune-label">学問</td><td class="fortune-value" id="v6">良し</td></tr>
-                <tr><td class="fortune-label">争事</td><td class="fortune-value" id="v7">良し</td></tr>
-                <tr><td class="fortune-label">恋愛</td><td class="fortune-value" id="v8">良し</td></tr>
-                <tr><td class="fortune-label">病気</td><td class="fortune-value" id="v9">良し</td></tr>
-                <tr><td class="fortune-label">出産</td><td class="fortune-value" id="v10">良し</td></tr>
-                <tr><td class="fortune-label">方向</td><td class="fortune-value" id="v11">良し</td></tr>
-                <tr><td class="fortune-label">転居</td><td class="fortune-value" id="v12">良し</td></tr>
+                <tr><td class="fortune-label">愿望</td><td class="fortune-value" id="v1">会实现</td></tr>
+                <tr><td class="fortune-label">待人</td><td class="fortune-value" id="v2">会来</td></tr>
+                <tr><td class="fortune-label">失物</td><td class="fortune-value" id="v3">会出现</td></tr>
+                <tr><td class="fortune-label">旅行</td><td class="fortune-value" id="v4">好</td></tr>
+                <tr><td class="fortune-label">生意</td><td class="fortune-value" id="v5">好</td></tr>
+                <tr><td class="fortune-label">学问</td><td class="fortune-value" id="v6">好</td></tr>
+                <tr><td class="fortune-label">争执</td><td class="fortune-value" id="v7">好</td></tr>
+                <tr><td class="fortune-label">恋爱</td><td class="fortune-value" id="v8">好</td></tr>
+                <tr><td class="fortune-label">疾病</td><td class="fortune-value" id="v9">好</td></tr>
+                <tr><td class="fortune-label">生产</td><td class="fortune-value" id="v10">好</td></tr>
+                <tr><td class="fortune-label">方向</td><td class="fortune-value" id="v11">好</td></tr>
+                <tr><td class="fortune-label">搬迁</td><td class="fortune-value" id="v12">好</td></tr>
             </table>
 
             <div class="poem-section">
-                <div class="poem-label">歌</div>
+                <div class="poem-label" id="poemLabel">歌</div>
                 <div class="poem-text" id="poemText"></div>
             </div>
         </div>
 
         <p class="hint" id="hint">
-            心を静かにして、お祈りしたいことをお思いください<br>
-            「占い」ボタンを押して、神籤を水に浮かべてください
+            静心凝神，默念所求之事<br>
+            点击"占卜"将签纸放入水中
         </p>
 
         <div class="controls">
-            <button class="btn btn-primary" id="divineBtn" onclick="divine()">占い</button>
-            <button class="btn btn-secondary" onclick="reset()">リセット</button>
+            <button class="btn btn-primary" id="divineBtn" onclick="divine()">占卜</button>
+            <button class="btn btn-secondary" onclick="reset()">重置</button>
         </div>
     </div>
 
     <script>
         const mikujiData = [
-            { num: 1, type: '大吉', poem: '雲散じて月明らかなり\n風静かにして浪平らかなり', values: ['叶う', '来る', '出る', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 2, type: '大吉', poem: '久方の天の戸開き\n神風や吹きて霧散る', values: ['叶う', '来る', '出る', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 3, type: '吉', poem: '春風や吹きて花開く\n大地に恵みの雨降る', values: ['叶う', '来る', '出る', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 4, type: '吉', poem: '山重なり水復れど\n柳暗く花明らかなる', values: ['叶う', '遅し', '出る', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 5, type: '吉', poem: '風吹いて雲散じゆけば\n月出て山河を照らす', values: ['叶う', '来る', '出る', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 6, type: '中吉', poem: '雲月を遮れど\n時は来たりて光射す', values: ['叶う', '来る', '出ず', '良し', '並み', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 7, type: '大吉', poem: '万事望のまゝなり\n思はず早くとのう\n安心せよ', values: ['叶う', '安心せよ', '出づる', '行先利徳あり', '損はなし', '安心して勉強せよ', '良し', '安心せよ', '治療に専念せよ', 'やすし', '南の方 よろし', '急がぬが 吉'] },
-            { num: 8, type: '中吉', poem: '山高く路遠けれど\n水深く舟行るべし', values: ['叶う', '来る', '出ず', '良し', '並み', '良し', '良し', '良し', '良し', '良し', '良し', '良し'] },
-            { num: 9, type: '小吉', poem: '小雨大地を潤し\n微風面を撫ず', values: ['叶う', '来る', '出る', '並み', '並み', '良し', '良し', '並み', '良し', '良し', '並み', '並み'] },
-            { num: 10, type: '小吉', poem: '日出でて東方紅く\n月落ちて西山暗し', values: ['叶う', '来る', '出る', '並み', '並み', '良し', '良し', '並み', '良し', '良し', '並み', '並み'] },
-            { num: 11, type: '末吉', poem: '冬去りて春来たらんとす\n寒尽きて暖自ら開く', values: ['叶う', '待つべし', '遅し', '並み', '慎め', '努力せよ', '慎め', '待つべし', '注意せよ', '注意せよ', '並み', '待つべし'] },
-            { num: 12, type: '末吉', poem: '烏雲日月を遮り\n風雨前程を阻む', values: ['叶う', '待つべし', '出ず', '注意せよ', '慎め', '努力せよ', '慎め', '待つべし', '注意せよ', '注意せよ', '注意せよ', '待つべし'] },
-            { num: 13, type: '凶', poem: '雲月を遮り\n風雨前程を阻む', values: ['叶いがたし', '来ず', '出ず', '悪し', '悪し', '悪し', '悪し', '悪し', '悪し', '注意せよ', '悪し', '悪し'] },
-            { num: 14, type: '凶', poem: '山高く路険しく\n水深く波多し', values: ['叶いがたし', '来ず', '出ず', '悪し', '悪し', '悪し', '悪し', '悪し', '悪し', '注意せよ', '悪し', '悪し'] }
+            { num: 1, type: '大吉', poem: '云散月明朗\n风静波浪平\n前路无障碍', values: ['会实现', '会来', '会出现', '好', '好', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 2, type: '大吉', poem: '久旱逢甘霖\n枯木又逢春\n困厄终过去', values: ['会实现', '会来', '会出现', '好', '好', '好', '好', '好', '痊愈', '好', '好', '好'] },
+            { num: 3, type: '吉', poem: '春风吹万物\n大地回春时\n努力终有报', values: ['会实现', '会来', '会出现', '好', '好', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 4, type: '吉', poem: '山重水复路\n柳暗花明村\n坚持不放弃', values: ['会实现', '晚来', '会出现', '好', '好', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 5, type: '吉', poem: '风吹云散去\n月出照山河\n前路渐明朗', values: ['会实现', '会来', '会出现', '好', '好', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 6, type: '中吉', poem: '云遮月不明\n风吹花未开\n耐心等待时', values: ['会实现', '会来', '难出现', '好', '普通', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 7, type: '大吉', poem: '万事望的如\n思不须早急\n安心吧', values: ['会实现', '安心吧', '会出现', '前往有利', '无损失', '安心学习', '好', '安心吧', '专心治疗', '容易', '南方好', '不急为好'] },
+            { num: 8, type: '中吉', poem: '山高路遥远\n水深舟可行\n努力向前进', values: ['会实现', '会来', '难出现', '好', '普通', '好', '好', '好', '好', '好', '好', '好'] },
+            { num: 9, type: '小吉', poem: '小雨润大地\n微风拂面来\n平淡即是福', values: ['会实现', '会来', '会出现', '普通', '普通', '好', '好', '普通', '好', '好', '普通', '普通'] },
+            { num: 10, type: '小吉', poem: '日出东方红\n月落西山暗\n顺其自然过', values: ['会实现', '会来', '会出现', '普通', '普通', '好', '好', '普通', '好', '好', '普通', '普通'] },
+            { num: 11, type: '末吉', poem: '冬去春将来\n寒尽暖自开\n等待好运来', values: ['会实现', '等待', '晚出现', '普通', '谨慎', '努力', '谨慎', '等待', '注意', '注意', '普通', '等待'] },
+            { num: 12, type: '末吉', poem: '乌云遮日月\n风雨阻前程\n坚持待天晴', values: ['会实现', '等待', '难出现', '注意', '谨慎', '努力', '谨慎', '等待', '注意', '注意', '注意', '等待'] },
+            { num: 13, type: '凶', poem: '乌云遮日月\n风雨阻前程\n谨慎待时运', values: ['难实现', '不会来', '难出现', '不好', '不好', '不好', '不好', '不好', '不好', '注意', '不好', '不好'] },
+            { num: 14, type: '凶', poem: '山高路险阻\n水深波浪多\n谨慎待时机', values: ['难实现', '不会来', '难出现', '不好', '不好', '不好', '不好', '不好', '不好', '注意', '不好', '不好'] }
         ];
 
         let isDivining = false;
@@ -270,30 +309,47 @@
             
             const btn = document.getElementById('divineBtn');
             const hint = document.getElementById('hint');
-            const paper = document.getElementById('mikujiPaper');
+            const overlay = document.getElementById('blankOverlay');
             
             btn.disabled = true;
-            hint.innerHTML = '神籤を水に浮かべています...<br>文字が浮かび上がるのをお待ちください';
+            hint.innerHTML = '将签纸放入水中...<br>等待文字浮现';
             
+            // 开始涟漪动画
             const rippleInterval = setInterval(createRipple, 500);
             
             setTimeout(() => {
                 const selected = mikujiData[Math.floor(Math.random() * mikujiData.length)];
                 
+                // 设置内容
                 document.getElementById('fortuneNum').textContent = `第${selected.num}番`;
                 document.getElementById('fortuneType').textContent = selected.type;
                 document.getElementById('fortuneType').className = `fortune-type ${selected.type}`;
                 document.getElementById('poemText').textContent = selected.poem;
                 
+                // 设置运势值
                 selected.values.forEach((v, i) => {
                     document.getElementById(`v${i+1}`).textContent = v;
                 });
                 
-                paper.classList.add('visible');
-                hint.innerHTML = '文字が浮かび上がりました';
+                // 渐隐空白层，文字浮现
+                overlay.classList.add('fade-out');
+                
+                // 依次显示文字
+                setTimeout(() => {
+                    document.getElementById('poemLabel').classList.add('revealed');
+                    document.getElementById('poemText').classList.add('revealed');
+                    
+                    for (let i = 1; i <= 12; i++) {
+                        setTimeout(() => {
+                            document.getElementById(`v${i}`).classList.add('revealed');
+                        }, (i - 1) * 100);
+                    }
+                }, 500);
+                
+                hint.innerHTML = '文字已浮现';
                 
                 clearInterval(rippleInterval);
-                btn.textContent = 'もう一度';
+                btn.textContent = '再占一次';
                 btn.disabled = false;
                 btn.onclick = reset;
                 
@@ -306,11 +362,20 @@
             hasDivined = false;
             isDivining = false;
             
-            document.getElementById('mikujiPaper').classList.remove('visible');
-            document.getElementById('hint').innerHTML = '心を静かにして、お祈りしたいことをお思いください<br>「占い」ボタンを押して、神籤を水に浮かべてください';
+            const overlay = document.getElementById('blankOverlay');
+            overlay.classList.remove('fade-out');
+            
+            // 隐藏文字
+            document.getElementById('poemLabel').classList.remove('revealed');
+            document.getElementById('poemText').classList.remove('revealed');
+            for (let i = 1; i <= 12; i++) {
+                document.getElementById(`v${i}`).classList.remove('revealed');
+            }
+            
+            document.getElementById('hint').innerHTML = '静心凝神，默念所求之事<br>点击"占卜"将签纸放入水中';
             
             const btn = document.getElementById('divineBtn');
-            btn.textContent = '占い';
+            btn.textContent = '占卜';
             btn.onclick = divine;
         }
     </script>
